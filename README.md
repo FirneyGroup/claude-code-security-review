@@ -37,7 +37,7 @@ jobs:
       - uses: anthropics/claude-code-security-review@main
         with:
           comment-pr: true
-          claude-api-key: ${{ secrets.CLAUDE_API_KEY }}
+          claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 ```
 
 ## Security Considerations
@@ -50,7 +50,8 @@ This action is not hardened against prompt injection attacks and should only be 
 
 | Input | Description | Default | Required |
 |-------|-------------|---------|----------|
-| `claude-api-key` | Anthropic Claude API key for security analysis. <br>*Note*: This API key needs to be enabled for both the Claude API and Claude Code usage. | None | Yes |
+| `claude-api-key` | Anthropic Claude API key for security analysis. <br>*Note*: This API key needs to be enabled for both the Claude API and Claude Code usage. | None | No* |
+| `claude-code-oauth-token` | Claude Code OAuth token for authentication (alternative to API key). Recommended for Claude subscription users. | None | No* |
 | `comment-pr` | Whether to comment on PRs with findings | `true` | No |
 | `upload-results` | Whether to upload results as artifacts | `true` | No |
 | `exclude-directories` | Comma-separated list of directories to exclude from scanning | None | No |
@@ -60,12 +61,40 @@ This action is not hardened against prompt injection attacks and should only be 
 | `false-positive-filtering-instructions` | Path to custom false positive filtering instructions text file | None | No |
 | `custom-security-scan-instructions` | Path to custom security scan instructions text file to append to audit prompt | None | No |
 
+*Either `claude-api-key` or `claude-code-oauth-token` is required for authentication.
+
 ### Action Outputs
 
 | Output | Description |
 |--------|-------------|
 | `findings-count` | Total number of security findings |
 | `results-file` | Path to the results JSON file |
+
+## Authentication
+
+Choose one of the following authentication methods:
+
+**Option 1: OAuth Token (Recommended)**
+```yaml
+- uses: anthropics/claude-code-security-review@main
+  with:
+    claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+```
+
+To get an OAuth token, Pro and Max users can run:
+```bash
+claude setup-token
+```
+Then add the generated token to your repository secrets as `CLAUDE_CODE_OAUTH_TOKEN`.
+
+**Option 2: API Key**
+```yaml
+- uses: anthropics/claude-code-security-review@main
+  with:
+    claude-api-key: ${{ secrets.CLAUDE_API_KEY }}
+```
+
+OAuth tokens are recommended for users with Claude subscriptions as they avoid API usage charges.
 
 ## How It Works
 
